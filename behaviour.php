@@ -36,11 +36,21 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
      */
     const IS_ARCHETYPAL = false;
 
-    /**
-     * Question behaviour for guessit question type (with help).
-     */
-    public function required_question_definition_type() {
-        return 'question_automatically_gradable';
+public function adjust_display_options(question_display_options $options) {
+        // Save some bits so we can put them back later.
+        $save = clone($options);
+        $options->marks = 0;
+
+        // Do the default thing.
+        parent::adjust_display_options($options);
+
+        // Then, if they have just Checked an answer, show them the applicable bits of feedback.
+        $state = $this->qa->get_state();
+        if ($state === question_state::$complete) {
+            $options->feedback        = $save->feedback;
+            $options->numpartscorrect = $save->numpartscorrect;
+        }
+        
     }
 
 }
