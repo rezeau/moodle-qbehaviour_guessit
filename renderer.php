@@ -33,9 +33,38 @@ require_once(dirname(__FILE__) . '/../adaptive/renderer.php');
  */
 class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
 
-   public function controls(question_attempt $qa, question_display_options $options) {
+    /**
+     * Get graded step.
+     * @param question_attempt $qa a question attempt.
+     */
+    protected function get_graded_step(question_attempt $qa) {
+        foreach ($qa->get_reverse_step_iterator() as $step) {
+            if ($step->has_behaviour_var('_try')) {
+                return $step;
+            }
+        }
+    }
+
+    public function controls(question_attempt $qa, question_display_options $options) {
+       // If student's answer is no longer improvable, then there's no point enabling the hint button.
+        $isimprovable = $qa->get_behaviour()->is_state_improvable($qa->get_state());
+        $output = $this->submit_button($qa, $options).'&nbsp;';
+        $helpmode = $qa->get_question()->usehint;
+        $helptext = 'Help';
+        $attributes = [
+            'type' => 'submit',
+            'id' => $qa->get_behaviour_field_name('helpme'),
+            'name' => $qa->get_behaviour_field_name('helpme'),
+            'value' => $helptext,
+            'class' => 'submit btn btn-secondary',
+        ];
+
+        $attributes['round'] = true;
+        $output .= html_writer::empty_tag('input', $attributes);
+        return $output;
        // Only display the Check button and specific feedback if correct answer still not found.
         $state = $qa->get_state();
+        return $this->submit_button($qa, $options);
         if ($state !== question_state::$complete) {
             return $this->submit_button($qa, $options);
         } else {
@@ -45,11 +74,23 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         }
     }
 
+    public function extra_help(question_attempt $qa, question_display_options $options) {
+        return html_writer::nonempty_tag('div', $qa->get_behaviour()->get_extra_help_if_requested($options->markdp));
+    }
+    
     public function feedback(question_attempt $qa, question_display_options $options) {
             // If the latest answer was invalid, no need to display an informative message.
             if ($qa->get_state() == question_state::$invalid) {
-                return '';                
+                return '';
             }
+            // Try to find the last graded step.
+        $gradedstep = $this->get_graded_step($qa);
+        if ($gradedstep) {
+            if ($gradedstep->has_behaviour_var('helpme') ) {
+                return $this->extra_help($qa, $options);
+            }
+        }
+            echo $qa->get_state();
      }
 
 }
