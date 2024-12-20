@@ -139,8 +139,10 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         // Try to find the last graded step.
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
         echo '$prevtries = ' . $prevtries;
-        if ($prevtries >= 10) {
-            $gradedstep = $this->get_graded_step($this->qa);
+        $gradedstep = $this->get_graded_step($this->qa);
+        $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
+        $prevresponse = $prevstep->get_qt_data();
+        if ($prevtries >= 0) {
             $isstateimprovable = $this->qa->get_behaviour()->is_state_improvable($this->qa->get_state());
             if (is_null($gradedstep) || !$gradedstep->has_behaviour_var('helpme')) {
                 return '';
@@ -148,8 +150,18 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             $question = $this->qa->get_question();
             $answersArray = $question->answers;
             $answerList = '';
-            foreach ($answersArray as $key => $questionAnswer) {
-                $answerList .= $questionAnswer->answer . ' ';
+            $counter = 1; // Start counter from 0
+            $nbanswers = count($answersArray);
+            foreach ($answersArray as $key => $rightansweer) {
+                echo '<br>$counter $rightansweer->answer = ' . $counter .' '. $rightansweer->answer;
+                if ($rightansweer->answer !== $prevresponse['p' . $counter] ) {
+                    $answerList .= '<b>' . $rightansweer->answer . '</b> ';
+                    break;
+                } else {
+                    $answerList .= $rightansweer->answer . ' ';
+                }
+                $counter++;
+                
             }
             // Trim any extra whitespace at the end
             $answerList = trim($answerList);
