@@ -47,7 +47,20 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
 
     public function controls(question_attempt $qa, question_display_options $options) {
        // If student's answer is no longer improvable, then there's no point enabling the hint button.
+       // Or if no answer provided yet.
         $isimprovable = $qa->get_behaviour()->is_state_improvable($qa->get_state());
+        // JR DEC 2020 Do not display the Help button if it has just been clicked for help!
+        $prevtries = $qa->get_last_behaviour_var('_try', 0);
+        echo '<br><br><br>$prevtries = ' . $prevtries;
+        $helprequested = false;
+        $gradedstep = $this->get_graded_step($qa);
+        $response = $qa->get_last_qt_data();
+        $question = $qa->get_question(false);
+
+        if ($gradedstep && $gradedstep->has_behaviour_var('helpme') ) {
+            $helprequested = true;
+        }
+
         $output = $this->submit_button($qa, $options).'&nbsp;';
         $helpmode = $qa->get_question()->usehint;
         $helptext = 'Help';
@@ -60,7 +73,9 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         ];
 
         $attributes['round'] = true;
-        $output .= html_writer::empty_tag('input', $attributes);
+        if (!$helprequested && $prevtries !== 0) {
+          $output .= html_writer::empty_tag('input', $attributes);
+        }
         return $output;
        // Only display the Check button and specific feedback if correct answer still not found.
         $state = $qa->get_state();
@@ -90,7 +105,6 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
                 return $this->extra_help($qa, $options);
             }
         }
-            echo $qa->get_state();
      }
 
 }

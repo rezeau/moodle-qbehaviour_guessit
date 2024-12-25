@@ -112,9 +112,9 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
 
     public function summarise_action(question_attempt_step $step) {
         if ($step->has_behaviour_var('helpme')) {
-            return $this->summarise_helpme($step);
+            //return $this->summarise_helpme($step);
         } else {
-            return parent::summarise_action($step);
+            //return parent::summarise_action($step);
         }
     }
 
@@ -138,11 +138,12 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
     public function get_extra_help_if_requested($dp) {
         // Try to find the last graded step.
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
+        $output = '';
         echo '$prevtries = ' . $prevtries;
         $gradedstep = $this->get_graded_step($this->qa);
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
         $prevresponse = $prevstep->get_qt_data();
-        if ($prevtries >= 0) {
+        if ($prevtries >= 2) {
             $isstateimprovable = $this->qa->get_behaviour()->is_state_improvable($this->qa->get_state());
             if (is_null($gradedstep) || !$gradedstep->has_behaviour_var('helpme')) {
                 return '';
@@ -165,9 +166,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             }
             // Trim any extra whitespace at the end
             $answerList = trim($answerList);
-            if ($isstateimprovable) {
-                $output = $answerList;
-            }
+            $output .= '<span class="que guessit help">' . $answerList . '</span>';
             return $output;
         }
         return 'Not available for ' . $prevtries . ' try/tries';
