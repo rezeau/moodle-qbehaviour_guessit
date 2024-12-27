@@ -45,15 +45,18 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         }
     }
 
+    /**
+     * Displays controls for the question attempt.
+     *
+     * @param question_attempt $qa The question attempt being processed.
+     * @param question_display_options $options Options for displaying the controls.
+     * @return string The HTML output for the controls.
+     */
     public function controls(question_attempt $qa, question_display_options $options) {
-       // If student's answer is no longer improvable, then there's no point enabling the hint button.
-       // Or if no answer provided yet.
         $isimprovable = $qa->get_behaviour()->is_state_improvable($qa->get_state());
-        // JR DEC 2020 Do not display the Help button if it has just been clicked for help!
         $prevtries = $qa->get_last_behaviour_var('_try', 0);
         $question = $qa->get_question(false);
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
-        //echo '<br><br><br>renderer $prevtries = ' . $prevtries . '  $nbtriesbeforehelp = ' . $nbtriesbeforehelp;
         $helprequested = false;
         $gradedstep = $this->get_graded_step($qa);
         $response = $qa->get_last_qt_data();
@@ -76,16 +79,29 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
 
         $attributes['round'] = true;
         if (!$helprequested && $prevtries !== 0) {
-          $output .= html_writer::empty_tag('input', $attributes);
+            $output .= html_writer::empty_tag('input', $attributes);
         }
-        //echo '<br><br>$helprequested = ' . $helprequested;
         return $output;
     }
 
+    /**
+     * Provides extra help for the question attempt.
+     *
+     * @param question_attempt $qa The question attempt being processed.
+     * @param question_display_options $options Options for displaying the help.
+     * @return string The HTML output for the extra help.
+     */
     public function extra_help(question_attempt $qa, question_display_options $options) {
         return html_writer::nonempty_tag('div', $qa->get_behaviour()->get_extra_help_if_requested($options->markdp));
     }
-    
+
+    /**
+     * Provides feedback for the question attempt.
+     *
+     * @param question_attempt $qa The question attempt being processed.
+     * @param question_display_options $options Options for displaying the feedback.
+     * @return string The HTML output for the feedback.
+     */
     public function feedback(question_attempt $qa, question_display_options $options) {
         // If the latest answer was invalid, no need to display an informative message.
         if ($qa->get_state() == question_state::$invalid) {
@@ -98,6 +114,6 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
                 return $this->extra_help($qa, $options);
             }
         }
-     }
+    }
 
 }

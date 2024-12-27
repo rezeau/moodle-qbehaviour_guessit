@@ -48,6 +48,11 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         }
     }
 
+    /**
+     * Retrieves the expected data for the question attempt.
+     *
+     * @return array The expected data, including 'helpme' if the attempt is active.
+     */
     public function get_expected_data() {
         $expected = parent::get_expected_data();
         if ($this->qa->get_state()->is_active()) {
@@ -56,8 +61,13 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         return $expected;
     }
 
+    /**
+     * Processes a user action for the question attempt.
+     *
+     * @param question_attempt_pending_step $pendingstep The pending step to process.
+     * @return bool The result of the action processing.
+     */
     public function process_action(question_attempt_pending_step $pendingstep) {
-        //echo '<br><br><br>function process_action';
         if ($pendingstep->has_behaviour_var('helpme')) {
             return $this->process_helpme($pendingstep);
         } else {
@@ -65,19 +75,22 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         }
     }
 
+    /**
+     * Processes a submit action for the question attempt.
+     *
+     * Handles the logic for comparing responses, tracking attempts, and setting the state
+     * based on the user's input and the number of tries before help is allowed.
+     *
+     * @param question_attempt_pending_step $pendingstep The pending step to process.
+     * @return int One of the constants indicating how the step should be handled.
+     */
     public function process_submit(question_attempt_pending_step $pendingstep) {
-        // todo do not submit Check if help has been requested!
-        //$status = $this->process_save($pendingstep);
         $response = $pendingstep->get_qt_data();
         $question = $this->qa->get_question();
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $helprequested = $pendingstep->has_behaviour_var('helpme');
         if ($helprequested) {
-            echo '$response<pre>';
-        print_r($response);
-        echo '</pre>';
-        //die;
-        $response = [];
+            $response = [];
         }
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
         $prevresponse = $prevstep->get_qt_data();
@@ -85,7 +98,6 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         if ($helprequested && $prevtries !== $nbtriesbeforehelp) {
             $prevtries = $prevtries - 1;
         }
-        // Added 'helpme' condition so question attempt would not be DISCARDED when student asks for help.
         if ($this->question->is_same_response($response, $prevresponse)) {
             return question_attempt::DISCARD;
         }
@@ -100,10 +112,12 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         return question_attempt::KEEP;
     }
 
-    public function summarise_action(question_attempt_step $step) {
-        return;
-    }
-
+    /**
+     * Processes a "help me" action for the question attempt.
+     *
+     * @param question_attempt_pending_step $pendingstep The pending step to process.
+     * @return int Action handling result.
+     */
     public function process_helpme(question_attempt_pending_step $pendingstep) {
         $keep = $this->process_submit($pendingstep);
         if ($keep == question_attempt::KEEP && $pendingstep->get_state() != question_state::$invalid) {
@@ -112,13 +126,18 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         return $keep;
     }
 
+    /**
+     * Provides extra help if requested based on the number of tries.
+     *
+     * @param mixed $dp Additional data for processing help (if required).
+     * @return string The extra help content or a message indicating remaining tries.
+     */
     public function get_extra_help_if_requested($dp) {
         // Try to find the last graded step.
         $question = $this->qa->get_question();
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
         $output = '';
-        echo '<br>$prevtries = ' . $prevtries . ' $nbtriesbeforehelp = ' . $nbtriesbeforehelp;
         $gradedstep = $this->get_graded_step($this->qa);
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
         $prevresponse = $prevstep->get_qt_data();
@@ -127,24 +146,22 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             if (is_null($gradedstep) || !$gradedstep->has_behaviour_var('helpme')) {
                 return '';
             }
-            $answersArray = $question->answers;
-            $answerList = '';
-            $counter = 1; // Start counter from 0
-            $nbanswers = count($answersArray);
-            foreach ($answersArray as $key => $rightansweer) {
-                //echo '<br>$counter $rightansweer->answer = ' . $counter .' '. $rightansweer->answer;
+            $answersarray = $question->answers;
+            $answerlist = '';
+            $counter = 1; // Start counter from 0.
+            $nbanswers = count($answersarray);
+            foreach ($answersarray as $key => $rightansweer) {
                 if ($rightansweer->answer !== $prevresponse['p' . $counter] ) {
-                    $answerList .= '<b>' . $rightansweer->answer . '</b> ';
+                    $answerlist .= '<b>' . $rightansweer->answer . '</b> ';
                     break;
                 } else {
-                    $answerList .= $rightansweer->answer . ' ';
+                    $answerlist .= $rightansweer->answer . ' ';
                 }
                 $counter++;
-                
             }
-            // Trim any extra whitespace at the end
-            $answerList = trim($answerList);
-            $output .= '<span class="que guessit help">' . $answerList . '</span>';
+            // Trim any extra whitespace at the end.
+            $answerlist = trim($answerlist);
+            $output .= '<span class="que guessit help">' . $answerlist . '</span>';
             return $output;
         }
         $triesleft = $nbtriesbeforehelp - $prevtries;
