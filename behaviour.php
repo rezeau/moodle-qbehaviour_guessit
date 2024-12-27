@@ -69,24 +69,24 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         // todo do not submit Check if help has been requested!
         //$status = $this->process_save($pendingstep);
         $response = $pendingstep->get_qt_data();
-        echo '<br><br>$response = ' . $response;
-        //die;
+        $question = $this->qa->get_question();
+        $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $helprequested = $pendingstep->has_behaviour_var('helpme');
-        /*
-        if (!$this->question->is_gradable_response($response) && !$helprequested) {
-            $pendingstep->set_state(question_state::$invalid);
-            if ($this->qa->get_state() != question_state::$invalid) {
-                $status = question_attempt::KEEP;
-            }
-            return $status;
+        if ($helprequested) {
+            echo '$response<pre>';
+        print_r($response);
+        echo '</pre>';
+        //die;
+        $response = [];
         }
-*/
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
         $prevresponse = $prevstep->get_qt_data();
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
-        
+        if ($helprequested && $prevtries !== $nbtriesbeforehelp) {
+            $prevtries = $prevtries - 1;
+        }
         // Added 'helpme' condition so question attempt would not be DISCARDED when student asks for help.
-        if ($this->question->is_same_response($response, $prevresponse) && !$helprequested ) {
+        if ($this->question->is_same_response($response, $prevresponse)) {
             return question_attempt::DISCARD;
         }
 
@@ -118,7 +118,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
         $output = '';
-        //echo '<br> behaviour get_extra_help_if_requested <br>$prevtries = ' . $prevtries . ' $nbtriesbeforehelp = ' . $nbtriesbeforehelp;
+        echo '<br>$prevtries = ' . $prevtries . ' $nbtriesbeforehelp = ' . $nbtriesbeforehelp;
         $gradedstep = $this->get_graded_step($this->qa);
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
         $prevresponse = $prevstep->get_qt_data();
@@ -148,8 +148,11 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             return $output;
         }
         $triesleft = $nbtriesbeforehelp - $prevtries;
-        return get_string('moretries', 'qtype_guessit', $triesleft);
+        if ($triesleft > 1) {
+            return get_string('moretries', 'qtype_guessit', $triesleft);
+        } else {
+            return get_string('moretry', 'qtype_guessit', $triesleft);
+        }
     }
-
 
 }
