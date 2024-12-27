@@ -51,7 +51,9 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $isimprovable = $qa->get_behaviour()->is_state_improvable($qa->get_state());
         // JR DEC 2020 Do not display the Help button if it has just been clicked for help!
         $prevtries = $qa->get_last_behaviour_var('_try', 0);
-        echo '<br><br><br>$prevtries = ' . $prevtries;
+        $question = $qa->get_question(false);
+        $nbtriesbeforehelp = $question->nbtriesbeforehelp;
+        //echo '<br><br><br>renderer $prevtries = ' . $prevtries . '  $nbtriesbeforehelp = ' . $nbtriesbeforehelp;
         $helprequested = false;
         $gradedstep = $this->get_graded_step($qa);
         $response = $qa->get_last_qt_data();
@@ -62,8 +64,8 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         }
 
         $output = $this->submit_button($qa, $options).'&nbsp;';
-        $helpmode = $qa->get_question()->usehint;
-        $helptext = 'Help';
+        $nbtriesbeforehelp = $qa->get_question()->nbtriesbeforehelp;
+        $helptext = get_string('gethelp', 'qbehaviour_guessit');
         $attributes = [
             'type' => 'submit',
             'id' => $qa->get_behaviour_field_name('helpme'),
@@ -76,17 +78,8 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         if (!$helprequested && $prevtries !== 0) {
           $output .= html_writer::empty_tag('input', $attributes);
         }
+        //echo '<br><br>$helprequested = ' . $helprequested;
         return $output;
-       // Only display the Check button and specific feedback if correct answer still not found.
-        $state = $qa->get_state();
-        return $this->submit_button($qa, $options);
-        if ($state !== question_state::$complete) {
-            return $this->submit_button($qa, $options);
-        } else {
-            $options->feedback = 0;
-            $options->numpartscorrect = '';
-            $save = clone($options);
-        }
     }
 
     public function extra_help(question_attempt $qa, question_display_options $options) {
@@ -94,11 +87,11 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
     }
     
     public function feedback(question_attempt $qa, question_display_options $options) {
-            // If the latest answer was invalid, no need to display an informative message.
-            if ($qa->get_state() == question_state::$invalid) {
-                return '';
-            }
-            // Try to find the last graded step.
+        // If the latest answer was invalid, no need to display an informative message.
+        if ($qa->get_state() == question_state::$invalid) {
+            return '';
+        }
+        // Try to find the last graded step.
         $gradedstep = $this->get_graded_step($qa);
         if ($gradedstep) {
             if ($gradedstep->has_behaviour_var('helpme') ) {
