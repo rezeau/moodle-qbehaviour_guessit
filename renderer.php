@@ -58,6 +58,11 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $helprequested = false;
         $gradedstep = $this->get_graded_step($qa);
+        $todo = true;
+        $prevstep = $qa->get_last_step_with_behaviour_var('_try');
+        if ($prevstep->get_state() == question_state::$complete) {
+            $todo = false;
+        }
         if ($gradedstep && $gradedstep->has_behaviour_var('helpme') ) {
             $helprequested = true;
         }
@@ -70,7 +75,10 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
             'value' => $helptext,
             'class' => 'submit btn btn-secondary',
         ];
-        if ($nbtriesbeforehelp > 0 && !$helprequested && $prevtries !== 0) {
+        /* Do not display the "Get help" button if $nbtriesbeforehelp has been set to None
+         * or no response submitted yet or all gaps correctly filled in.
+         */
+        if ($nbtriesbeforehelp > 0 && !$helprequested && $prevtries !== 0 && $todo) {
             $output .= html_writer::empty_tag('input', $attributes);
         }
         return $output;

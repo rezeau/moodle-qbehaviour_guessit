@@ -37,18 +37,6 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
     const IS_ARCHETYPAL = false;
 
     /**
-     * Get the most recently submitted step.
-     * @return question_attempt_step
-     */
-    public function get_graded_step() {
-        foreach ($this->qa->get_reverse_step_iterator() as $step) {
-            if ($step->has_behaviour_var('_try')) {
-                return $step;
-            }
-        }
-    }
-
-    /**
      * Retrieves the expected data for the question attempt.
      *
      * @return array The expected data, including 'helpme' if the attempt is active.
@@ -102,12 +90,16 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             return question_attempt::DISCARD;
         }
 
-        if ($prevstep->get_state() == question_state::$complete) {
+        list($fraction, $state) = $this->question->grade_response($response);
+        if ($fraction === 1) {
             $pendingstep->set_state(question_state::$complete);
         } else {
             $pendingstep->set_state(question_state::$todo);
         }
+
         $pendingstep->set_behaviour_var('_try', $prevtries + 1);
+        $pendingstep->set_behaviour_var('_rawfraction', $fraction);
+        $pendingstep->set_new_response_summary($this->question->summarise_response($response));
 
         return question_attempt::KEEP;
     }
@@ -169,6 +161,18 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             return get_string('moretries', 'qtype_guessit', $triesleft);
         } else {
             return get_string('moretry', 'qtype_guessit', $triesleft);
+        }
+    }
+
+    /**
+     * Get the most recently submitted step.
+     * @return question_attempt_step
+     */
+    public function get_graded_step() {
+        foreach ($this->qa->get_reverse_step_iterator() as $step) {
+            if ($step->has_behaviour_var('_try')) {
+                return $step;
+            }
         }
     }
 
