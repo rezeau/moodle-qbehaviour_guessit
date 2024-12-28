@@ -53,21 +53,15 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
      * @return string The HTML output for the controls.
      */
     public function controls(question_attempt $qa, question_display_options $options) {
-        $isimprovable = $qa->get_behaviour()->is_state_improvable($qa->get_state());
         $prevtries = $qa->get_last_behaviour_var('_try', 0);
         $question = $qa->get_question(false);
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $helprequested = false;
         $gradedstep = $this->get_graded_step($qa);
-        $response = $qa->get_last_qt_data();
-        $question = $qa->get_question(false);
-
         if ($gradedstep && $gradedstep->has_behaviour_var('helpme') ) {
             $helprequested = true;
         }
-
         $output = $this->submit_button($qa, $options).'&nbsp;';
-        $nbtriesbeforehelp = $qa->get_question()->nbtriesbeforehelp;
         $helptext = get_string('gethelp', 'qbehaviour_guessit');
         $attributes = [
             'type' => 'submit',
@@ -76,9 +70,7 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
             'value' => $helptext,
             'class' => 'submit btn btn-secondary',
         ];
-
-        $attributes['round'] = true;
-        if (!$helprequested && $prevtries !== 0) {
+        if ($nbtriesbeforehelp > 0 && !$helprequested && $prevtries !== 0) {
             $output .= html_writer::empty_tag('input', $attributes);
         }
         return $output;
