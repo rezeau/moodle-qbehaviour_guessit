@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qbehaviour_guessit';
-$plugin->version  = 2024100800;
+$plugin->version  = 2025010100;
 $plugin->requires = 2016052300; // Moodle version.
 $plugin->release = '4.5';
 $plugin->maturity  = MATURITY_STABLE;
