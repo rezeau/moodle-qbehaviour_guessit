@@ -56,16 +56,12 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $prevtries = $qa->get_last_behaviour_var('_try', 0);
         $question = $qa->get_question(false);
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
-        $helprequested = false;
+
         $gradedstep = $this->get_graded_step($qa);
-        $todo = true;
-        $prevstep = $qa->get_last_step_with_behaviour_var('_try');
-        if ($prevstep->get_state() == question_state::$complete) {
-            $todo = false;
-        }
-        if ($gradedstep && $gradedstep->has_behaviour_var('helpme') ) {
-            $helprequested = true;
-        }
+        $todo = $qa->get_last_step_with_behaviour_var('_try')->get_state() != question_state::$complete;
+        $helprequested = $gradedstep && $gradedstep->has_behaviour_var('helpme');
+        $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);
+
         $output = $this->submit_button($qa, $options).'&nbsp;';
         $helptext = get_string('gethelp', 'qbehaviour_guessit');
         $attributes = [
@@ -76,10 +72,13 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
             'class' => 'submit btn btn-secondary',
         ];
         /* Do not display the "Get help" button if $nbtriesbeforehelp has been set to None
-         * or no response submitted yet or all gaps correctly filled in.
+         * or no response submitted yet.
          */
-        if ($nbtriesbeforehelp > 0 && !$helprequested && $prevtries !== 0 && $todo) {
+        if ($nbtriesbeforehelp > 0 && !$helprequested && $prevtries !== 0) {
             $output .= html_writer::empty_tag('input', $attributes);
+        }
+        if (!$todo || $finished) {
+            $output = '';
         }
         return $output;
     }
