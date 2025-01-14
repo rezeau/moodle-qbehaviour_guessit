@@ -45,6 +45,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         $expected = parent::get_expected_data();
         if ($this->qa->get_state()->is_active()) {
             $expected['helpme'] = PARAM_BOOL;
+            $expected['maxtriesreached'] = PARAM_BOOL;
         }
         return $expected;
     }
@@ -76,6 +77,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         $response = $pendingstep->get_qt_data();
         $question = $this->qa->get_question();
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
+        $wordle = $question->wordle;
         $helprequested = $pendingstep->has_behaviour_var('helpme');
         if ($helprequested) {
             $response = [];
@@ -85,6 +87,14 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
         if ($helprequested && $prevtries !== $nbtriesbeforehelp) {
             $prevtries = $prevtries - 1;
+        }
+        if ($wordle) {
+            $nbmaxtrieswordle = $question->nbmaxtrieswordle;
+            //$nbmaxtrieswordle = 2;
+            if ($prevtries >= $nbmaxtrieswordle) {
+                $pendingstep->set_behaviour_var('_maxtriesreached', 1);
+                //$pendingstep->set_state(question_state::$complete);                
+            }
         }
         if ($this->question->is_same_response($response, $prevresponse)) {
             return question_attempt::DISCARD;
@@ -124,11 +134,13 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
      * @param mixed $dp Additional data for processing help (if required).
      * @return string The extra help content or a message indicating remaining tries.
      */
-    public function get_extra_help_if_requested($dp) {
+    public function get_extra_help_if_requested($dp) {        
         // Try to find the last graded step.
         $question = $this->qa->get_question();
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
-        $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
+        $wordle = $question->wordle;
+        $nbmaxtrieswordle = $question->nbmaxtrieswordle;
+        $prevtries = $this->qa->get_last_behaviour_var('_try', 0);        
         $output = '';
         $gradedstep = $this->get_graded_step($this->qa);
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
@@ -153,7 +165,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             }
             // Trim any extra whitespace at the end.
             $answerlist = trim($answerlist);
-            $output .= '<span class="que guessit help">' . $answerlist . '</span>';
+            $output .= '<span class="que guessit giveword">' . $answerlist . '</span>';
             return $output;
         }
         $triesleft = $nbtriesbeforehelp - $prevtries;

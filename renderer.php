@@ -56,12 +56,24 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $prevtries = $qa->get_last_behaviour_var('_try', 0);
         $question = $qa->get_question(false);
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
-
+        $wordle = $question->wordle;
+        $nbmaxtrieswordle = $question->nbmaxtrieswordle;
         $gradedstep = $this->get_graded_step($qa);
+        $answers = $question->answers;
         $todo = $qa->get_last_step_with_behaviour_var('_try')->get_state() != question_state::$complete;
         $helprequested = $gradedstep && $gradedstep->has_behaviour_var('helpme');
-        $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);
-
+        $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);        
+        if ($wordle && $prevtries !== 0) {
+            if ($gradedstep->has_behaviour_var('_maxtriesreached', 1) ) {
+                $question->maxreached = 1;
+            }
+            if ($question->maxreached) {
+                $output = '<span class="que guessit giveword">' . 'YOU DID NOT FIND IT' . '</span>';
+                $toto = $question->fill_in_correct_answer($qa);
+            return $output;
+            }
+        }
+        
         $output = $this->submit_button($qa, $options).'&nbsp;';
         $helptext = get_string('gethelp', 'qbehaviour_guessit');
         $attributes = [
@@ -80,6 +92,7 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         if (!$todo || $finished) {
             $output = '';
         }
+
         return $output;
     }
 
@@ -110,7 +123,7 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $gradedstep = $this->get_graded_step($qa);
         if ($gradedstep) {
             if ($gradedstep->has_behaviour_var('helpme') ) {
-                return $this->extra_help($qa, $options);
+                return $this->extra_help($qa, $options);            
             }
         }
     }
