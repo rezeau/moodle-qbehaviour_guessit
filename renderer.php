@@ -19,7 +19,7 @@
  *
  * @package    qbehaviour_guessit
  * @subpackage guessit
- * @copyright  2024 Joseph Rézeau
+ * @copyright  2025 Joseph Rézeau
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -62,18 +62,17 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $answers = $question->answers;
         $todo = $qa->get_last_step_with_behaviour_var('_try')->get_state() != question_state::$complete;
         $helprequested = $gradedstep && $gradedstep->has_behaviour_var('helpme');
-        $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);        
+        $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);
         if ($wordle && $prevtries !== 0) {
             if ($gradedstep->has_behaviour_var('_maxtriesreached', 1) ) {
                 $question->maxreached = 1;
             }
             if ($question->maxreached) {
                 $output = '<span class="que guessit giveword">' . 'YOU DID NOT FIND IT' . '</span>';
-                $toto = $question->fill_in_correct_answer($qa);
-            return $output;
+                return $output;
             }
         }
-        
+
         $output = $this->submit_button($qa, $options).'&nbsp;';
         $helptext = get_string('gethelp', 'qbehaviour_guessit');
         $attributes = [
@@ -92,40 +91,7 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         if (!$todo || $finished) {
             $output = '';
         }
-
         return $output;
-    }
-
-    /**
-     * Provides extra help for the question attempt.
-     *
-     * @param question_attempt $qa The question attempt being processed.
-     * @param question_display_options $options Options for displaying the help.
-     * @return string The HTML output for the extra help.
-     */
-    public function extra_help(question_attempt $qa, question_display_options $options) {
-        return html_writer::nonempty_tag('div', $qa->get_behaviour()->get_extra_help_if_requested($options->markdp));
-    }
-
-    /**
-     * Provides feedback for the question attempt.
-     *
-     * @param question_attempt $qa The question attempt being processed.
-     * @param question_display_options $options Options for displaying the feedback.
-     * @return string The HTML output for the feedback.
-     */
-    public function feedback(question_attempt $qa, question_display_options $options) {
-        // If the latest answer was invalid, no need to display an informative message.
-        if ($qa->get_state() == question_state::$invalid) {
-            return '';
-        }
-        // Try to find the last graded step.
-        $gradedstep = $this->get_graded_step($qa);
-        if ($gradedstep) {
-            if ($gradedstep->has_behaviour_var('helpme') ) {
-                return $this->extra_help($qa, $options);            
-            }
-        }
     }
 
 }

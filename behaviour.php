@@ -90,10 +90,8 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         }
         if ($wordle) {
             $nbmaxtrieswordle = $question->nbmaxtrieswordle;
-            //$nbmaxtrieswordle = 2;
             if ($prevtries >= $nbmaxtrieswordle) {
                 $pendingstep->set_behaviour_var('_maxtriesreached', 1);
-                //$pendingstep->set_state(question_state::$complete);                
             }
         }
         if ($this->question->is_same_response($response, $prevresponse)) {
@@ -126,54 +124,6 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             $pendingstep->set_behaviour_var('_help', 1);
         }
         return $keep;
-    }
-
-    /**
-     * Provides extra help if requested based on the number of tries.
-     *
-     * @param mixed $dp Additional data for processing help (if required).
-     * @return string The extra help content or a message indicating remaining tries.
-     */
-    public function get_extra_help_if_requested($dp) {        
-        // Try to find the last graded step.
-        $question = $this->qa->get_question();
-        $nbtriesbeforehelp = $question->nbtriesbeforehelp;
-        $wordle = $question->wordle;
-        $nbmaxtrieswordle = $question->nbmaxtrieswordle;
-        $prevtries = $this->qa->get_last_behaviour_var('_try', 0);        
-        $output = '';
-        $gradedstep = $this->get_graded_step($this->qa);
-        $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
-        $prevresponse = $prevstep->get_qt_data();
-        if ($prevtries >= $nbtriesbeforehelp) {
-            $isstateimprovable = $this->qa->get_behaviour()->is_state_improvable($this->qa->get_state());
-            if (is_null($gradedstep) || !$gradedstep->has_behaviour_var('helpme')) {
-                return '';
-            }
-            $answersarray = $question->answers;
-            $answerlist = '';
-            $counter = 1; // Start counter from 0.
-            $nbanswers = count($answersarray);
-            foreach ($answersarray as $key => $rightansweer) {
-                if ($rightansweer->answer !== $prevresponse['p' . $counter] ) {
-                    $answerlist .= '<b>' . $rightansweer->answer . '</b> ';
-                    break;
-                } else {
-                    $answerlist .= $rightansweer->answer . ' ';
-                }
-                $counter++;
-            }
-            // Trim any extra whitespace at the end.
-            $answerlist = trim($answerlist);
-            $output .= '<span class="que guessit giveword">' . $answerlist . '</span>';
-            return $output;
-        }
-        $triesleft = $nbtriesbeforehelp - $prevtries;
-        if ($triesleft > 1) {
-            return get_string('moretries', 'qtype_guessit', $triesleft);
-        } else {
-            return get_string('moretry', 'qtype_guessit', $triesleft);
-        }
     }
 
     /**
