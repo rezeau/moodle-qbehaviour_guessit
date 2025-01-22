@@ -119,6 +119,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
      * @return int Action handling result.
      */
     public function process_helpme(question_attempt_pending_step $pendingstep) {
+        echo 'process_helpme';
         $keep = $this->process_submit($pendingstep);
         if ($keep == question_attempt::KEEP && $pendingstep->get_state() != question_state::$invalid) {
             $pendingstep->set_behaviour_var('_help', 1);
