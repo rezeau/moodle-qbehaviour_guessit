@@ -90,7 +90,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         }
         if ($wordle) {
             $nbmaxtrieswordle = $question->nbmaxtrieswordle;
-            if ($prevtries >= $nbmaxtrieswordle) {
+            if ($prevtries > $nbmaxtrieswordle - 2) {
                 $pendingstep->set_behaviour_var('_maxtriesreached', 1);
             }
         }
@@ -125,18 +125,6 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             $pendingstep->set_behaviour_var('_help', 1);
         }
         return $keep;
-    }
-
-    /**
-     * Get the most recently submitted step.
-     * @return question_attempt_step
-     */
-    public function get_graded_step() {
-        foreach ($this->qa->get_reverse_step_iterator() as $step) {
-            if ($step->has_behaviour_var('_try')) {
-                return $step;
-            }
-        }
     }
 
 }

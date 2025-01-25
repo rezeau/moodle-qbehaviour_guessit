@@ -57,9 +57,13 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $question = $qa->get_question(false);
         $nbtriesbeforehelp = $question->nbtriesbeforehelp;
         $wordle = $question->wordle;
-        $nbmaxtrieswordle = $question->nbmaxtrieswordle;
         $gradedstep = $this->get_graded_step($qa);
         $answers = $question->answers;
+        $rightanswers = [];
+        foreach ($answers as $answer) {
+            $rightanswer = $answer->answer;
+            array_push($rightanswers, $rightanswer);
+        }
         $todo = $qa->get_last_step_with_behaviour_var('_try')->get_state() != question_state::$complete;
         $helprequested = $gradedstep && $gradedstep->has_behaviour_var('helpme');
         $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);
@@ -68,8 +72,9 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
                 $question->maxreached = 1;
             }
             if ($question->maxreached) {
-                $output = '<span class="que guessit giveword">' . 'YOU DID NOT FIND IT' . '</span>';
-                return $output;
+                $rightletters = implode('', $rightanswers);
+                $formattxt = '<span class="que guessit giveword">';
+                return $formattxt . get_string('wordnotfound', 'qtype_guessit', $prevtries) . $rightletters. '</div>';
             }
         }
 
