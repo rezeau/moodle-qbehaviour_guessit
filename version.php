@@ -19,14 +19,14 @@
  *
  * @package    qbehaviour_guessit
  * @subpackage guessit
- * @copyright  2011-2022 Joseph Rézeau
+ * @copyright  2025 Joseph Rézeau
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qbehaviour_guessit';
-$plugin->version  = 2025012100;
+$plugin->version  = 2025012600;
 $plugin->requires = 2016052300; // Moodle version.
 $plugin->release = '1.0';
 $plugin->maturity  = MATURITY_STABLE;

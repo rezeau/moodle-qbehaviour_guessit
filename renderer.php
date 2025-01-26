@@ -74,7 +74,7 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
             if ($question->maxreached) {
                 $rightletters = implode('', $rightanswers);
                 $formattxt = '<span class="que guessit giveword">';
-                return $formattxt . get_string('wordnotfound', 'qtype_guessit', $prevtries) . $rightletters;
+                return $formattxt . get_string('wordnotfound', 'qtype_guessit', $prevtries) . $rightletters. '</div>';
             }
         }
 
