@@ -79,7 +79,7 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         }
 
         $output = $this->submit_button($qa, $options).'&nbsp;';
-        $helptext = get_string('gethelp', 'qbehaviour_guessit');
+        $helptext = get_string('gethelp', 'qtype_guessit');
         $attributes = [
             'type' => 'submit',
             'id' => $qa->get_behaviour_field_name('helpme'),
