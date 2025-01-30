@@ -90,7 +90,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         }
         if ($wordle) {
             $nbmaxtrieswordle = $question->nbmaxtrieswordle;
-            if ($prevtries > $nbmaxtrieswordle - 2) {
+            if ($prevtries > $nbmaxtrieswordle - 1) {
                 $pendingstep->set_behaviour_var('_maxtriesreached', 1);
             }
         }
