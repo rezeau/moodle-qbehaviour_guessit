@@ -67,18 +67,21 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $todo = $qa->get_last_step_with_behaviour_var('_try')->get_state() != question_state::$complete;
         $helprequested = $gradedstep && $gradedstep->has_behaviour_var('helpme');
         $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);
-        if ($wordle && $prevtries !== 0) {
-            if ($gradedstep->has_behaviour_var('_maxtriesreached', 1) ) {
-                $question->maxreached = 1;
+        $output = $this->submit_button($qa, $options).'&nbsp;';
+        if ($wordle) {
+            if ($prevtries !== 0) {
+                if ($gradedstep->has_behaviour_var('_maxtriesreached', 1) ) {
+                    $question->maxreached = 1;
+                }
+                if ($question->maxreached) {
+                    $rightletters = implode('', $rightanswers);
+                    $formattxt = '<span class="que guessit giveword">';
+                    return $formattxt . get_string('wordnotfound', 'qtype_guessit', $prevtries) . $rightletters;
+                }
             }
-            if ($question->maxreached) {
-                $rightletters = implode('', $rightanswers);
-                $formattxt = '<span class="que guessit giveword">';
-                return $formattxt . get_string('wordnotfound', 'qtype_guessit', $prevtries) . $rightletters;
-            }
+            return $output;
         }
 
-        $output = $this->submit_button($qa, $options).'&nbsp;';
         $helptext = get_string('gethelp', 'qtype_guessit');
         $attributes = [
             'type' => 'submit',
