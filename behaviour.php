@@ -85,7 +85,8 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
         $prevresponse = $prevstep->get_qt_data();
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
-        if ($helprequested && $prevtries !== $nbtriesbeforehelp) {
+        // Do not count this try if help has been requested.
+        if ($helprequested) {
             $prevtries = $prevtries - 1;
         }
         if ($wordle) {
