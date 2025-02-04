@@ -67,6 +67,9 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         $todo = $qa->get_last_step_with_behaviour_var('_try')->get_state() != question_state::$complete;
         $helprequested = $gradedstep && $gradedstep->has_behaviour_var('helpme');
         $finished = $gradedstep && $gradedstep->has_behaviour_var('finish', 1);
+        if (!$todo || $finished) {
+            return;
+        }
         $output = $this->submit_button($qa, $options).'&nbsp;';
         if ($wordle) {
             if ($prevtries !== 0) {
@@ -95,9 +98,6 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
          */
         if ($nbtriesbeforehelp > 0 && !$helprequested && $prevtries !== 0) {
             $output .= html_writer::empty_tag('input', $attributes);
-        }
-        if (!$todo || $finished) {
-            $output = '';
         }
         return $output;
     }

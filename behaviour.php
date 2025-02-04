@@ -89,21 +89,22 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         if ($helprequested) {
             $prevtries = $prevtries - 1;
         }
-        if ($wordle) {
-            $nbmaxtrieswordle = $question->nbmaxtrieswordle;
-            if ($prevtries > $nbmaxtrieswordle - 2) {
-                $pendingstep->set_behaviour_var('_maxtriesreached', 1);
-            }
-        }
-        if ($this->question->is_same_response($response, $prevresponse)) {
-            return question_attempt::DISCARD;
-        }
 
         list($fraction, $state) = $this->question->grade_response($response);
         if ($fraction === 1) {
             $pendingstep->set_state(question_state::$complete);
         } else {
             $pendingstep->set_state(question_state::$todo);
+        }
+
+        if ($wordle) {
+            $nbmaxtrieswordle = $question->nbmaxtrieswordle;
+            if ($prevtries > $nbmaxtrieswordle - 2 && $fraction != 1) {
+                $pendingstep->set_behaviour_var('_maxtriesreached', 1);
+            }
+        }
+        if ($this->question->is_same_response($response, $prevresponse)) {
+            return question_attempt::DISCARD;
         }
 
         $pendingstep->set_behaviour_var('_try', $prevtries + 1);
@@ -120,7 +121,6 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
      * @return int Action handling result.
      */
     public function process_helpme(question_attempt_pending_step $pendingstep) {
-        echo 'process_helpme';
         $keep = $this->process_submit($pendingstep);
         if ($keep == question_attempt::KEEP && $pendingstep->get_state() != question_state::$invalid) {
             $pendingstep->set_behaviour_var('_help', 1);
