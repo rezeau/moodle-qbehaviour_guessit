@@ -101,6 +101,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             $nbmaxtrieswordle = $question->nbmaxtrieswordle;
             if ($prevtries > $nbmaxtrieswordle - 2 && $fraction != 1) {
                 $pendingstep->set_behaviour_var('_maxtriesreached', 1);
+                $pendingstep->set_state(question_state::$gradedpartial);
             }
         }
         if ($this->question->is_same_response($response, $prevresponse)) {
