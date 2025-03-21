@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['gethelp'] = 'Get help';
 $string['pluginname'] = 'Guess It Adaptive mode with Help';
 $string['privacy:metadata'] = 'The Guess It Adaptive mode with Help question behaviour plugin does not store any personal data.';
+$string['wordnotfound'] = 'Word not found in {$a} tries: ';
 

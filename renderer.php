@@ -79,13 +79,13 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
                 if ($question->maxreached) {
                     $rightletters = implode('', $rightanswers);
                     $formattxt = '<span class="que guessit giveword">';
-                    return $formattxt . get_string('wordnotfound', 'qtype_guessit', $prevtries) . $rightletters;
+                    return $formattxt . get_string('wordnotfound', 'qbehaviour_guessit', $prevtries) . $rightletters;
                 }
             }
             return $output;
         }
 
-        $helptext = get_string('gethelp', 'qtype_guessit');
+        $helptext = get_string('gethelp', 'qbehaviour_guessit');
         $attributes = [
             'type' => 'submit',
             'id' => $qa->get_behaviour_field_name('helpme'),
