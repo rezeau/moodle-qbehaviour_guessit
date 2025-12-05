@@ -90,7 +90,7 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
             $prevtries = $prevtries - 1;
         }
 
-        list($fraction, $state) = $this->question->grade_response($response);
+        [$fraction, $state] = $this->question->grade_response($response);
         if ($fraction === 1) {
             $pendingstep->set_state(question_state::$complete);
         } else {
@@ -128,5 +128,4 @@ class qbehaviour_guessit extends qbehaviour_adaptive {
         }
         return $keep;
     }
-
 }

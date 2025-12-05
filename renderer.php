@@ -32,7 +32,6 @@ require_once(dirname(__FILE__) . '/../adaptive/renderer.php');
  * Renderer for outputting parts of a question belonging to the guessit behaviour.
  */
 class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
-
     /**
      * Get graded step.
      * @param question_attempt $qa a question attempt.
@@ -70,10 +69,10 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         if (!$todo || $finished) {
             return;
         }
-        $output = $this->submit_button($qa, $options).'&nbsp;';
+        $output = $this->submit_button($qa, $options) . '&nbsp;';
         if ($wordle) {
             if ($prevtries !== 0) {
-                if ($gradedstep->has_behaviour_var('_maxtriesreached', 1) ) {
+                if ($gradedstep->has_behaviour_var('_maxtriesreached', 1)) {
                     $question->maxreached = 1;
                 }
                 if ($question->maxreached) {
@@ -101,5 +100,4 @@ class qbehaviour_guessit_renderer extends qbehaviour_adaptive_renderer {
         }
         return $output;
     }
-
 }
